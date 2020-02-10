@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>PHP Back-ending</title>
+		<script src="./js/jquery.min.js"></script>
+	</head>
+	<body>
+		<h3>
+			This is a sample project for using php-backend.
+		</h3>
+		<hr />
+		<input type="text" id="txt_user" placeholder="your name?" />
+		<br />
+		<input type="text" id="txt_user_age" placeholder="your age?" />
+		<br />
+		<input type="text" id="txt_user_weight" placeholder="your weight?" />
+		<br />
+
+		<button onclick="btn_call_say_hello();">Say Hello</button>
+		<br />
+		<span id="spn_say_hello">...</span>
+		<hr />
+
+		<script>
+			function btn_call_say_hello() {
+				var user_name = $('#txt_user').val();
+				var user_age = $('#txt_user_age').val();
+				var user_weight = $('#txt_user_weight').val();
+
+				$.post('./srv/say-hello.php', { user_name, user_age, user_weight }, function(d, s) {
+					if (s != 'success') {
+						console.log('Request Failed!');
+						return;
+					}
+
+					var resp = null;
+					var r = '';
+					try {
+						// resp = JSON.parse(d);
+						resp = d;
+						console.log(resp);
+						r += 'success: ' + resp['success'];
+						r += ', ';
+						r += 'user_name: ' + resp['result']['user_name'];
+						r += ', ';
+						r += 'user_age: ' + resp['result']['user_age'];
+						r += ', ';
+						r += 'user_weight: ' + resp['result']['user_weight'];
+					} catch (err) {
+						console.log('Invalid response from server');
+					}
+					$('#spn_say_hello').text(r);
+				});
+			}
+		</script>
+	</body>
+</html>
