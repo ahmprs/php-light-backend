@@ -8,12 +8,16 @@ function par($key)
 }
 
 
+function respAccessDenied(){
+    resp(0, 'Access Denied.');
+}
+
 // echoes a response to client
 function resp($success, $result)
 {
     header('Content-type: application/json');
     $r = array(
-        "success" => $success,
+        "ok" => $success,
         "result" => $result
     );
     $jsn = json_encode($r);

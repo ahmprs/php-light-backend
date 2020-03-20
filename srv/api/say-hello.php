@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . "/core/main.php";
-
+$srv = realpath (__dir__."../../");
+require_once "$srv/lib/main.php";
 
 $gui = par('gui');
 if ($gui == 1) {

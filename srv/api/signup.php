@@ -1,7 +1,8 @@
 <?php
+$srv = realpath (__dir__."../../");
 
-require_once __DIR__ . "/core/main.php";
-require_once __DIR__ . "/core/dal.php";
+require_once "$srv/core/main.php";
+require_once "$srv/core/dal.php";
 
 session_start();
 
