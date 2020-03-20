@@ -1,79 +1,107 @@
 <?php
-// php hash function
-//----------------------------------------------------------
-function getNthOrderHash($str, $cnt, $order)
-{
-    $h = $str;
-    for ($i = 0; $i < $order; $i++) {
-        $h = getStrHash($h, $cnt);
+
+class Sec{
+    static function getNthOrderHash($str, $cnt, $order)
+    {
+        $h = $str;
+        for ($i = 0; $i < $order; $i++) {
+            $h = Sec::getStrHash($h, $cnt);
+        }
+        return $h;
     }
-    return $h;
-}
 
-
-function getStrHash($str, $cnt)
-{
-    $s = getSeed($str);
-    $p = array(2, 3, 5, 7, 11, 13, 17, 19, 23, 29);
-    $res = "";
-    $b = 0;
-
-    for ($i = 0; $i < $cnt; $i++) {
-        $s = $s * $p[$i % 10];
-        $s++;
-        $s = $s % 65536;
-        $b = $s % 72;
-        // if(($i>0) && ($i%4==0)) $res.='-';
-        $res .= getChar($b);
+    static function getStrHash($str, $cnt)
+    {
+        $s = Sec::getSeed($str);
+        $p = array(2, 3, 5, 7, 11, 13, 17, 19, 23, 29);
+        $res = "";
+        $b = 0;
+    
+        for ($i = 0; $i < $cnt; $i++) {
+            $s = $s * $p[$i % 10];
+            $s++;
+            $s = $s % 65536;
+            $b = $s % 72;
+            // if(($i>0) && ($i%4==0)) $res.='-';
+            $res .= Sec::getChar($b);
+        }
+        return $res;
     }
-    return $res;
-}
-
-function getHex($b)
-{
-    $hx = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
-    $low = $b & 0x0f;
-    $high = $b & 0xf0;
-    $high = $high >> 4;
-    return $hx[$high] . "" . $hx[$low] . "";
-}
-
-function getChar($indx)
-{
-    $str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*_";
-    return $str{
-        $indx};
-}
-
-
-function getSeed($str)
-{
-    $arr = getArrFromStr($str);
-    $n = count($arr);
-    $s = 0;
-
-    for ($i = 0; $i < $n; $i++) {
-        $s += $arr[$i] * $i;
-        $s = ($s % 65536);
+    
+    static function getHex($b)
+    {
+        $hx = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
+        $low = $b & 0x0f;
+        $high = $b & 0xf0;
+        $high = $high >> 4;
+        return $hx[$high] . "" . $hx[$low] . "";
     }
-    return $s;
-}
-
-function getArrFromStr($str)
-{
-    $arr = array();
-    for ($i = 0; $i < strlen($str); $i++) {
-        $charcode = ord($str[$i]);
-        $arr[] = $charcode;
+    
+    static function getChar($indx)
+    {
+        $str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*_";
+        return $str{
+            $indx};
     }
-    return $arr;
+    
+    
+    static function getSeed($str)
+    {
+        $arr = Sec::getArrFromStr($str);
+        $n = count($arr);
+        $s = 0;
+    
+        for ($i = 0; $i < $n; $i++) {
+            $s += $arr[$i] * $i;
+            $s = ($s % 65536);
+        }
+        return $s;
+    }
+    
+    static function getArrFromStr($str)
+    {
+        $arr = array();
+        for ($i = 0; $i < strlen($str); $i++) {
+            $charcode = ord($str[$i]);
+            $arr[] = $charcode;
+        }
+        return $arr;
+    }
+
+    // from: https://stackoverflow.com/questions/3422759/php-aes-encrypt-decrypt
+    static function encrypt($plaintext, $password)
+    {
+        $method = "AES-256-CBC";
+        $key = hash('sha256', $password, true);
+        $iv = openssl_random_pseudo_bytes(16);
+
+        $ciphertext = openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv);
+        $hash = hash_hmac('sha256', $ciphertext . $iv, $key, true);
+
+        return $iv . $hash . $ciphertext;
+    }
+
+
+    // from: https://stackoverflow.com/questions/3422759/php-aes-encrypt-decrypt
+    static function decrypt($ivHashCiphertext, $password)
+    {
+        $method = "AES-256-CBC";
+        $iv = substr($ivHashCiphertext, 0, 16);
+        $hash = substr($ivHashCiphertext, 16, 32);
+        $ciphertext = substr($ivHashCiphertext, 48);
+        $key = hash('sha256', $password, true);
+
+        if (!hash_equals(hash_hmac('sha256', $ciphertext . $iv, $key, true), $hash)) return null;
+
+        return openssl_decrypt($ciphertext, $method, $key, OPENSSL_RAW_DATA, $iv);
+    }
+
+    static function getHash($alg, $inpStr)
+    {
+        return hash($alg, $inpStr);
+    }
 }
-//---------------------------------------------------------- 
 
-
-function getHash($inpStr, $alg)
-{
-    return hash($alg, $inpStr);
 
     // ALGORITHM     SIZE
     //-------------+-----
@@ -115,33 +143,6 @@ function getHash($inpStr, $alg)
     // haval192,5    48 
     // haval224,5    56 
     // haval256,5    64 
-}
 
 
-// from: https://stackoverflow.com/questions/3422759/php-aes-encrypt-decrypt
-function encrypt($plaintext, $password)
-{
-    $method = "AES-256-CBC";
-    $key = hash('sha256', $password, true);
-    $iv = openssl_random_pseudo_bytes(16);
 
-    $ciphertext = openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv);
-    $hash = hash_hmac('sha256', $ciphertext . $iv, $key, true);
-
-    return $iv . $hash . $ciphertext;
-}
-
-
-// from: https://stackoverflow.com/questions/3422759/php-aes-encrypt-decrypt
-function decrypt($ivHashCiphertext, $password)
-{
-    $method = "AES-256-CBC";
-    $iv = substr($ivHashCiphertext, 0, 16);
-    $hash = substr($ivHashCiphertext, 16, 32);
-    $ciphertext = substr($ivHashCiphertext, 48);
-    $key = hash('sha256', $password, true);
-
-    if (!hash_equals(hash_hmac('sha256', $ciphertext . $iv, $key, true), $hash)) return null;
-
-    return openssl_decrypt($ciphertext, $method, $key, OPENSSL_RAW_DATA, $iv);
-}

@@ -7,6 +7,13 @@ function par($key)
     else return $_REQUEST[$key];
 }
 
+function parSec($key){
+    $v = par($key);
+    // TODO: check input string
+    // and reject it if some threats are 
+    // detected
+    return $v;
+}
 
 function respAccessDenied(){
     resp(0, 'Access Denied.');

@@ -1,6 +1,10 @@
 <?php
+
+
+
 class Settings{
     static function getSettings(){
+        $srv = realpath (__dir__);
         return [
             'database_server_name'=>'localhost',
             'database_username'=>'root',
@@ -8,7 +12,12 @@ class Settings{
             'database_name'=>'db_test',
 
             'super_user'=>'admin',
-            'super_password'=>'123'
+            'super_password'=>'123',
+
+            'storage_root_directory'=>"$srv/Storage",
+            'uploads_directory'=>"$srv/Storage/uploads",
+            'users_directory'=>"$srv/Storage/users",
+
         ]; 
     }
 
