@@ -1,11 +1,10 @@
 <?php
+$srv = realpath (__dir__."../../");
+require_once "$srv/lib/main.php";
+require_once "$srv/lib/db.php";
 
-class Signup{
+class SignUp{
     static function run(){
-        $srv = realpath (__dir__."../../");
-
-        require_once "$srv/lib/main.php";
-        require_once "$srv/lib/db.php";
         
         session_start();
         
@@ -19,7 +18,7 @@ class Signup{
             $arrTypes["user_name"] = "text";
             $arrTypes["user_pass"] = "password";
         
-            $html = makeForm('Signup', './signup.php', $arrParameters, $arrTypes);
+            $html = makeForm('Signup', './sign-up', $arrParameters, $arrTypes);
             echo ($html);
             return;
         }
@@ -76,4 +75,5 @@ class Signup{
     }
 }
 
-Signup::run();
+// TEST ONLY:
+// SignUp::run();
