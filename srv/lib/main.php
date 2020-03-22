@@ -3,19 +3,25 @@
 // tries to extract a parameter which is sent by user
 function par($key)
 {
-    if (!isset($_REQUEST[$key])) return null;
-    else return $_REQUEST[$key];
+    if (!isset($_REQUEST[$key])) {
+        return null;
+    } else {
+        return $_REQUEST[$key];
+    }
+
 }
 
-function parSec($key){
+function parSec($key)
+{
     $v = par($key);
     // TODO: check input string
-    // and reject it if some threats are 
+    // and reject it if some threats are
     // detected
     return $v;
 }
 
-function respAccessDenied(){
+function respAccessDenied()
+{
     resp(0, 'Access Denied.');
 }
 
@@ -25,21 +31,24 @@ function resp($success, $result)
     header('Content-type: application/json');
     $r = array(
         "ok" => $success,
-        "result" => $result
+        "result" => $result,
     );
     $jsn = json_encode($r);
     echo $jsn;
 }
 
-
 // makes a form by given parameters
-function makeForm($title, $action, $arrParameters, $arrTypes)
+function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
 {
+    if ($enctype != '') {
+        $enc = "enctype='$enctype' ";
+    }
+
     $frm = "";
 
     $frm .= "<h2 class='heading'>Endpoint GUI</h2>";
     $frm .= "<h3>Please supply the following parameters: </h3>";
-    $frm .= "<form method='post' action='$action' class='parameters'>";
+    $frm .= "<form method='post' action='$action' class='parameters' $enc >";
     $type = "";
     foreach ($arrParameters as $key => $val) {
         $type = $arrTypes[$key];
@@ -93,7 +102,6 @@ function makeForm($title, $action, $arrParameters, $arrTypes)
         </body>
     </html>
 HTML;
-
 
     return $html;
 }

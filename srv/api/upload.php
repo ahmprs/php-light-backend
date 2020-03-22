@@ -2,6 +2,7 @@
 
 $srv = realpath(__dir__ . "../../");
 require_once "$srv/lib/main.php";
+require_once "$srv/settings.php";
 require_once "$srv/lib/fs.php";
 require_once "$srv/lib/user.php";
 require_once "$srv/lib/sec.php";
@@ -11,85 +12,116 @@ class Upload
 {
     public static function run()
     {
-        $cal = new Calendar();
-        $gdp = $cal->get_server_gdp_time();
+        $gui = par('gui');
+        if ($gui == 1) {
+            $arrParameters = [];
+
+            $arrParameters["fileToUpload"] = "";
+            $arrTypes["fileToUpload"] = "file";
+
+            $enctype = "multipart/form-data";
+            $html = makeForm('File upload', "./upload", $arrParameters, $arrTypes, $enctype);
+            echo ($html);
+            return;
+        }
+
+        $upload_max_allowed_file_size_bytes
+        = Settings::get('upload_max_allowed_file_size_bytes');
+
+        $arr_allowed_formats
+        = Settings::get('upload_allowed_formats');
 
         $user_id = User::getUserId();
         if ($user_id == '') {
-            return resp(0, 'please login first');
+            return resp(0, [
+                'err' => 'access denied',
+                'hint' => 'please login first',
+            ]);
         }
 
         $err_msg = "";
+        $uploadOk = 1;
+
         FS::makeUserDirectory($user_id);
         $target_dir = FS::getUserDirectory($user_id);
         if (!FS::dir($target_dir)->exists()) {
-            return resp(0, 'unable to prepare target directory');
+            return resp(0, [
+                'err' => 'unable to prepare target directory',
+            ]);
         }
 
-        $target_file = "$target_dir\\" . basename($_FILES["fileToUpload"]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $cal = new Calendar();
+        $gdp = $cal->get_server_gdp_time();
 
-        // Check if image file is a actual image or fake image
-        if (isset($_POST["submit"])) {
-            $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-            if ($check !== false) {
-                // echo "File is an image - " . $check["mime"] . ".";
-                $uploadOk = 1;
-            } else {
-                $err_msg = "File is not an image.";
-                $uploadOk = 0;
-            }
+        $file_uploaded_basic_name = basename($_FILES["fileToUpload"]["name"]);
+        $target_file = "$target_dir\\$file_uploaded_basic_name";
+        $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $file_new_name = "$target_dir\\" . Calendar::getStamp() . ".$file_extension";
+        $file_tmp_name = $_FILES["fileToUpload"]["tmp_name"];
+
+        // IMAGE CHECK SIZE
+        // if (isset($_POST["submit"])) {
+        //     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+        //     if ($check !== false) {
+        //         // echo "File is an image - " . $check["mime"] . ".";
+        //         $uploadOk = 1;
+        //     } else {
+        //         $err_msg = "File is not an image.";
+        //         $uploadOk = 0;
+        //     }
+        // }
+
+        // checks if file already exists
+        if (file_exists($file_new_name)) {
+            return resp(0, [
+                'err' => 'file already exists',
+                'hint' => 'try again in a few seconds',
+            ]);
         }
 
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            $err_msg = "file already exists";
-            $uploadOk = 0;
+        // check file size
+        $file_size_bytes = $_FILES["fileToUpload"]["size"];
+        if ($file_size_bytes > $upload_max_allowed_file_size_bytes) {
+            return resp(0, [
+                'err' => 'file is too large',
+                'file_size_bytes' => $file_size_bytes,
+                'maximum_allowed_file_size_bytes' => $upload_max_allowed_file_size_bytes,
+            ]);
         }
 
-        // Check file size
-        if ($_FILES["fileToUpload"]["size"] > 500000) {
-            $err_msg = 'Sorry, your file is too large.';
-            $uploadOk = 0;
+        // check file extension
+        if (!in_array($file_extension, $arr_allowed_formats)) {
+            return resp(0, [
+                'err' => 'extension not allowed',
+                'extension' => $file_extension,
+                'allowed_formats' => $arr_allowed_formats,
+            ]);
         }
 
-        // Allow certain file formats
-        if (
-            $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "pdf"
-            && $imageFileType != "gif"
-        ) {
-            $err_msg = 'invalid format';
-            $uploadOk = 0;
-        }
-
-        // Check if $uploadOk is set to 0 by an error
-        if ($uploadOk == 0) {
-            resp(0, $err_msg);
+        // move temp file to destination
+        if (move_uploaded_file($file_tmp_name, $file_new_name)) {
+            resp(1, [
+                'ok' => 'success',
+                'user_id' => $user_id,
+                'file_uploaded_basic_name' => $file_uploaded_basic_name,
+                'file_tmp_name' => $file_tmp_name,
+                'target_file' => $target_file,
+                'file_new_name' => $file_new_name,
+                'file_extension' => $file_extension,
+                'target_dir' => $target_dir,
+                'allowed_formats' => $arr_allowed_formats,
+            ]);
         } else {
-            // Test Point
-            // resp(0, $_FILES["fileToUpload"]["tmp_name"]);
-            // resp(0, $target_file);
-            // return;
-
-            $tf = "$target_dir\\" . Calendar::getStamp() . ".$imageFileType";
-            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $tf)) {
-                resp(1, 'file ' . basename($_FILES["fileToUpload"]["name"]) . ' upload succeeded');
-            } else {
-                $err_msg = 'file copy to destination folder failed.';
-                resp(0, $err_msg);
-            }
+            resp(0, [
+                'err' => 'file copy to destination folder failed.',
+                'file_tmp_name' => $file_tmp_name,
+                'file_new_name' => $file_new_name,
+            ]);
         }
     }
 }
 
-// Upload::run();
-
-/*
-How to use:
-<form action="./srv/api/upload" method="post" enctype="multipart/form-data">
-Select image to upload:
-<input type="file" name="fileToUpload" id="fileToUpload" />
-<input type="submit" value="Upload Image" name="submit" />
-</form>
- */
+// How to use:
+// call the page in url with switch gui=1
+// Example:
+// http://localhost/1-WebApps/php-light-backend/php-light-backend/srv/api/upload?gui=1

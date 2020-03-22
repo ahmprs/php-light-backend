@@ -29,11 +29,16 @@ class Calendar
             'greg_year' => (int) $arr_greg[0],
             'greg_month' => (int) $arr_greg[1],
             'greg_day_of_month' => (int) $arr_greg[2],
+            'greg_is_leap_year' => $c->IsGregLeapYear((int) $arr_greg[0]),
 
             'jal_year' => (int) $arr_jal[0],
             'jal_month' => (int) $arr_jal[1],
             'jal_day_of_month' => (int) $arr_jal[2],
+            'jal_days_in_current_month' => $c->getJalDaysInMonth($gdp),
+            'jal_is_leap_year' => $c->IsJalLeapYear((int) $arr_jal[0]),
 
+            'stamp' => $c->getStamp(),
+            'day_of_week' => $c->getJalDayOfWeekFrom($gdp),
         ];
     }
 
