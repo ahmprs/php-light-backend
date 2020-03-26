@@ -11,6 +11,22 @@ class User
             session_start();
         }
 
+        if (!isset($_SESSION['user_id'])) {
+            $_SESSION['user_id'] = '';
+        }
+
+        if (!isset($_SESSION['user_name'])) {
+            $_SESSION['user_name'] = '';
+        }
+
+        if (!isset($_SESSION['user_active'])) {
+            $_SESSION['user_active'] = '';
+        }
+
+        if (!isset($_SESSION['user_access_level'])) {
+            $_SESSION['user_access_level'] = '';
+        }
+
         return [
             'user_id' => $_SESSION['user_id'],
             'user_name' => $_SESSION['user_name'],
@@ -49,7 +65,7 @@ class User
 
     }
 
-    static function getUserId()
+    public static function getUserId()
     {
         $ui = User::getUserInfo();
         if ($ui['user_id'] == null) {
@@ -57,10 +73,9 @@ class User
         } else {
             return $ui['user_id'];
         }
-
     }
 
-    static function getUserName()
+    public static function getUserName()
     {
         $ui = User::getUserInfo();
         if ($ui['user_name'] == null) {
@@ -71,7 +86,7 @@ class User
 
     }
 
-    static function getUserAccessLevel()
+    public static function getUserAccessLevel()
     {
         $ui = User::getUserInfo();
         if ($ui['user_access_level'] == null) {
@@ -82,7 +97,7 @@ class User
 
     }
 
-    static function getUserActive()
+    public static function getUserActive()
     {
         $ui = User::getUserInfo();
         if ($ui['user_active'] == null) {

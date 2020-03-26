@@ -3,12 +3,21 @@
 // tries to extract a parameter which is sent by user
 function par($key)
 {
-    if (!isset($_REQUEST[$key])) {
-        return null;
-    } else {
-        return $_REQUEST[$key];
+    if (isset($_POST[$key])) {
+        return $_POST[$key];
     }
 
+    if (isset($_GET[$key])) {
+        return $_GET[$key];
+    }
+
+    return null;
+
+    // if (!isset($_REQUEST[$key])) {
+    //     return null;
+    // } else {
+    //     return $_REQUEST[$key];
+    // }
 }
 
 function parSec($key)
@@ -37,9 +46,24 @@ function resp($success, $result)
     echo $jsn;
 }
 
+function diff($strA, $strB)
+{
+    // swap $strA and $strB if needed
+    if (strlen($strA) < strlen($strB)) {
+        $t = $strA;
+        $strA = $strB;
+        $strB = $t;
+    }
+    return substr($strA, strlen($strB));
+}
+
 // makes a form by given parameters
 function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
 {
+    $srv = realpath(__dir__ . "../../");
+
+    $enc = '';
+
     if ($enctype != '') {
         $enc = "enctype='$enctype' ";
     }
@@ -61,6 +85,19 @@ function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
     $frm .= "</form>";
     $frm .= "<hr />";
 
+    // acquire the root of document
+    // $doc_root = realpath($_SERVER['DOCUMENT_ROOT']);
+
+    // acquire the location to javascript files
+    // $jquery = diff($doc_root, realpath("$srv/js/jquery.min.js"));
+    // $md5 = diff($doc_root, realpath("$srv/js/md5.js"));
+
+    // make script tag
+    // $scripts = "
+    // <script src='$jquery'></script>
+    // <script src='$md5'></script>
+    // ";
+
     $html = <<<HTML
 
     <!DOCTYPE html>
@@ -69,6 +106,7 @@ function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>$title</title>
+            $scripts
             <style>
                 .heading{
                     background-color: #333;

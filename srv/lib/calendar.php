@@ -42,7 +42,7 @@ class Calendar
         ];
     }
 
-    public static function getStamp()
+    public function getStamp()
     {
         $c = new Calendar();
         $t = $c->get_server_time();

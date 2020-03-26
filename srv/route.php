@@ -1,5 +1,7 @@
 <?php
 $srv = realpath(__dir__);
+require_once "$srv/api/test.php";
+
 require_once "$srv/lib/main.php";
 require_once "$srv/api/say-hello.php";
 require_once "$srv/api/reset-database.php";
@@ -7,6 +9,7 @@ require_once "$srv/api/sign-in.php";
 require_once "$srv/api/sign-out.php";
 require_once "$srv/api/sign-up.php";
 require_once "$srv/api/upload.php";
+require_once "$srv/api/date-time-info.php";
 
 class Route
 {
@@ -17,12 +20,30 @@ class Route
 
         switch ($path) {
 
+            case '/test':return Test::run();
+
             case '/api/say-hello':return SayHello::run();
+            case '/api/say-hello/form':return SayHello::form();
+            case '/api/say-hello/help':return SayHello::help();
+
             case '/api/reset-database':return ResetDatabase::run();
+
             case '/api/sign-in':return SignIn::run();
+            case '/api/sign-in/form':return SignIn::formm();
+            case '/api/sign-in/new-seed':return SignIn::newSeed();
+            case '/api/sign-in/last-seed':return SignIn::lastSeed();
+            case '/api/sign-in/state':return SignIn::getLoginState();
+            case '/api/sign-in/change-password':return SignIn::changePassword();
+
             case '/api/sign-out':return SignOut::run();
             case '/api/sign-up':return SignUp::run();
             case '/api/upload':return Upload::run();
+
+            case '/api/date-time-info':return DateTimeInfo::run();
+            case '/api/date-time-info/jal':return DateTimeInfo::jal();
+            case '/api/date-time-info/greg':return DateTimeInfo::greg();
+            case '/api/date-time-info/gdp':return DateTimeInfo::gdp();
+            case '/api/date-time-info/stamp':return DateTimeInfo::stamp();
 
             default:return resp(0, "wrong path: $path");
         }
@@ -62,9 +83,7 @@ class Route
 
     private static function getSrvUrl()
     {
-        // C:\xampp\htdocs
         $server_root_path = realpath($_SERVER['DOCUMENT_ROOT']);
-        // C:\xampp\htdocs\1-WebApps\php-light-backend\php-light-backend\srv
         $srv_path = realpath(__dir__);
         $srv_url = Route::diff($srv_path, $server_root_path);
         $srv_url = str_replace('\\', '/', $srv_url);

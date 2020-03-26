@@ -7,6 +7,7 @@ require_once "$srv/lib/fs.php";
 require_once "$srv/lib/user.php";
 require_once "$srv/lib/sec.php";
 require_once "$srv/lib/calendar.php";
+require_once "$srv/lib/db.php";
 
 class Upload
 {
@@ -56,7 +57,9 @@ class Upload
         $file_uploaded_basic_name = basename($_FILES["fileToUpload"]["name"]);
         $target_file = "$target_dir\\$file_uploaded_basic_name";
         $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        $file_new_name = "$target_dir\\" . Calendar::getStamp() . ".$file_extension";
+        $stamp = Calendar::getStamp();
+        $fnn = "$stamp.$file_extension";
+        $file_new_name = "$target_dir\\$fnn";
         $file_tmp_name = $_FILES["fileToUpload"]["tmp_name"];
 
         // IMAGE CHECK SIZE
@@ -100,16 +103,21 @@ class Upload
 
         // move temp file to destination
         if (move_uploaded_file($file_tmp_name, $file_new_name)) {
+
+            $sql = "INSERT INTO `tbl_uploads` (`file_id`, `user_id`, `file_org_name`, `file_new_name`,`file_size_bytes`, `file_target_dir`, `file_extension`) VALUES (NULL, '$user_id', '$file_uploaded_basic_name', '$fnn','$file_size_bytes', '$target_dir', '$file_extension')";
+            $r = DB::connect()->insert($sql);
+
             resp(1, [
                 'ok' => 'success',
                 'user_id' => $user_id,
                 'file_uploaded_basic_name' => $file_uploaded_basic_name,
                 'file_tmp_name' => $file_tmp_name,
-                'target_file' => $target_file,
-                'file_new_name' => $file_new_name,
+                'file_new_name' => $fnn,
                 'file_extension' => $file_extension,
+                'file_size_bytes' => $file_size_bytes,
                 'target_dir' => $target_dir,
                 'allowed_formats' => $arr_allowed_formats,
+                'database_insertion' => $r->getNumberOfAffectedRows(),
             ]);
         } else {
             resp(0, [

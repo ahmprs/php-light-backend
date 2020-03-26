@@ -1,10 +1,11 @@
 <?php
 
-$srv = realpath (__dir__."../../");
+$srv = realpath(__dir__ . "../../");
 require_once "$srv/settings.php";
+require_once "$srv/lib/main.php";
 
-
-class DB{
+class DB
+{
     private $arrSettings = null;
     private $sqlStr = '';
     private $err = '';
@@ -14,31 +15,30 @@ class DB{
     private $cn = null;
     private $queryExecutedSuccessfully = false;
 
-    static function connect($ignoreDatabaseName = false){
+    public static function connect($ignoreDatabaseName = false)
+    {
         $db = new DB();
         $arrSettings = Settings::getSettings();
 
-        if ($ignoreDatabaseName){
+        if ($ignoreDatabaseName) {
             $db->cn = new mysqli(
-                $arrSettings['database_server_name'], 
-                $arrSettings['database_username'], 
-                $arrSettings['database_password'], 
+                $arrSettings['database_server_name'],
+                $arrSettings['database_username'],
+                $arrSettings['database_password'],
                 ''
             );
-        }
-        
-        else{
+        } else {
             $db->cn = new mysqli(
-                $arrSettings['database_server_name'], 
-                $arrSettings['database_username'], 
-                $arrSettings['database_password'], 
+                $arrSettings['database_server_name'],
+                $arrSettings['database_username'],
+                $arrSettings['database_password'],
                 $arrSettings['database_name']
             );
         }
 
         $db->err = $db->cn->connect_error;
 
-        if($db->err) {
+        if ($db->err) {
             $db->cn = null;
             return $db;
         }
@@ -50,8 +50,11 @@ class DB{
         return $db;
     }
 
-    function select($sql){
-        if ($this->cn === null) return $this;
+    public function select($sql)
+    {
+        if ($this->cn === null) {
+            return $this;
+        }
 
         $result = $this->cn->query($sql);
         $this->recCnt = $result->num_rows;
@@ -67,10 +70,13 @@ class DB{
         return $this;
     }
 
-    function insert($sql){
-        if ($this->cn === null) return $this;
+    public function insert($sql)
+    {
+        if ($this->cn === null) {
+            return $this;
+        }
 
-        if ($this->cn->query($sql) === TRUE) {
+        if ($this->cn->query($sql) === true) {
             $this->queryExecutedSuccessfully = true;
             $this->recCnt = 1;
             $this->lastRecId = $this->cn->insert_id;
@@ -81,37 +87,13 @@ class DB{
         return $this;
     }
 
-    function update($sql){
-        if ($this->cn === null) return $this;
-
-        if ($this->cn->query($sql) === TRUE) {
-            $this->queryExecutedSuccessfully = true;
-            $this->recCnt = $this->cn->affected_rows;
-        } else {
-            $this->recCnt = 0;
+    public function update($sql)
+    {
+        if ($this->cn === null) {
+            return $this;
         }
-        $this->cn->close();
-        return $this;
-    }
-    
-    
-    function runSql($sql){
-        if ($this->cn === null) return $this;
 
-        if ($this->cn->query($sql) === TRUE) {
-            $this->queryExecutedSuccessfully = true;
-            $this->recCnt = $this->cn->affected_rows;
-        } else {
-            $this->recCnt = 0;
-        }
-        $this->cn->close();
-        return $this;
-    }
-    
-    function delete($sql){
-        if ($this->cn === null) return $this;
-
-        if ($this->cn->query($sql) === TRUE) {
+        if ($this->cn->query($sql) === true) {
             $this->queryExecutedSuccessfully = true;
             $this->recCnt = $this->cn->affected_rows;
         } else {
@@ -121,22 +103,57 @@ class DB{
         return $this;
     }
 
-    function getRecords(){
+    public function runSql($sql)
+    {
+
+        if ($this->cn === null) {
+            return $this;
+        }
+
+        if ($this->cn->query($sql) === true) {
+            $this->queryExecutedSuccessfully = true;
+            $this->recCnt = $this->cn->affected_rows;
+        } else {
+            $this->recCnt = 0;
+        }
+        $this->cn->close();
+        return $this;
+    }
+
+    public function delete($sql)
+    {
+        if ($this->cn === null) {
+            return $this;
+        }
+
+        if ($this->cn->query($sql) === true) {
+            $this->queryExecutedSuccessfully = true;
+            $this->recCnt = $this->cn->affected_rows;
+        } else {
+            $this->recCnt = 0;
+        }
+        $this->cn->close();
+        return $this;
+    }
+
+    public function getRecords()
+    {
         return $this->tbl;
     }
 
-    function getLastRecordId(){
+    public function getLastRecordId()
+    {
         return $this->lastRecId;
     }
 
-    function getNumberOfAffectedRows(){
+    public function getNumberOfAffectedRows()
+    {
         return $this->recCnt;
     }
 
-    function isSuccessful(){
+    public function isSuccessful()
+    {
         return $this->queryExecutedSuccessfully;
     }
 
 }
-
-?>
