@@ -11,6 +11,7 @@ require_once "$srv/api/sign-out.php";
 require_once "$srv/api/sign-up.php";
 require_once "$srv/api/sign-up-form.php";
 require_once "$srv/api/upload.php";
+require_once "$srv/api/upload-form.php";
 require_once "$srv/api/date-time-info.php";
 require_once "$srv/api/change-password.php";
 require_once "$srv/api/change-password-form.php";
@@ -23,13 +24,14 @@ class Route
 
         switch ($path) {
 
-            case '/test':return Test::run();
+            case '/api/test':return Test::run();
 
             case '/api/say-hello':return SayHello::run();
             case '/api/say-hello/form':return SayHello::form();
             case '/api/say-hello/help':return SayHello::help();
 
             case '/api/reset-database':return ResetDatabase::run();
+            case '/api/reset-database/form':return ResetDatabase::form();
 
             case '/api/sign-in':return SignIn::run();
             case '/api/sign-in/form':return SignInForm::run();
@@ -39,10 +41,12 @@ class Route
             case '/api/change-password':return changePassword::run();
             case '/api/change-password/form':return ChangePasswordForm::run();
 
-            case '/api/sign-out':return SignOut::run();
             case '/api/sign-up':return SignUp::run();
             case '/api/sign-up/form':return SignUpForm::run();
+            case '/api/sign-out':return SignOut::run();
+
             case '/api/upload':return Upload::run();
+            case '/api/upload/form':return UploadForm::run();
 
             case '/api/date-time-info':return DateTimeInfo::run();
             case '/api/date-time-info/jal':return DateTimeInfo::jal();

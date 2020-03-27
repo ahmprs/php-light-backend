@@ -1,10 +1,16 @@
 <?php
+
 class SignUpForm
 {
     public static function run()
     {
-        {
-            $html = <<<HTML
+        $srv_abs = realpath(__dir__ . "../../");
+        require_once "$srv_abs/lib/main.php";
+        $root = realpath($_SERVER['DOCUMENT_ROOT']);
+        $srv = diff($srv_abs, $root);
+        $srv = str_replace("\\", "/", $srv);
+
+        $html = <<<HTML
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -12,11 +18,11 @@ class SignUpForm
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>Sign Up</title>
 
-            <script src="./../../../srv/js/jquery.min.js"></script>
-            <script src="./../../../srv/js/md5.js"></script>
+            <script src="$srv/js/jquery.min.js"></script>
+            <script src="$srv/js/md5.js"></script>
 
-            <link rel="stylesheet" href="./../../../srv/bootstrap/css/bootstrap.min.css" />
-            <script src="./../../../srv/bootstrap/js/bootstrap.min.js"></script>
+            <link rel="stylesheet" href="$srv/bootstrap/css/bootstrap.min.css" />
+            <script src="$srv/bootstrap/js/bootstrap.min.js"></script>
 
         </head>
         <body style="padding: 10px;">
@@ -33,7 +39,7 @@ class SignUpForm
                     var user_name = $('#txt_user_name').val();
                     var user_pass = $('#txt_user_pass').val();
                     var user_pass_hash = getMd5(user_pass);
-                    $.post('./../../../srv/api/sign-up',{user_name, user_pass_hash},(d,s)=>{
+                    $.post("$srv/api/sign-up",{user_name, user_pass_hash},(d,s)=>{
                         console.log(d);
                         try {
                             if(d['ok']==1){
@@ -44,13 +50,12 @@ class SignUpForm
                         }
                     });
                 }
-
             </script>
         </body>
     </html>
 
 HTML;
-            echo ($html);
-        }
+        echo ($html);
     }
+
 }

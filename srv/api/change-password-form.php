@@ -3,6 +3,11 @@ class ChangePasswordForm
 {
     public static function run()
     {
+        $srv_abs = realpath(__dir__ . "../../");
+        require_once "$srv_abs/lib/main.php";
+        $root = realpath($_SERVER['DOCUMENT_ROOT']);
+        $srv = diff($srv_abs, $root);
+        $srv = str_replace("\\", "/", $srv);
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -10,13 +15,13 @@ class ChangePasswordForm
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sign In</title>
+        <title>Change Password</title>
 
-        <script src="./../../../srv/js/jquery.min.js"></script>
-        <script src="./../../../srv/js/md5.js"></script>
+        <script src="$srv/js/jquery.min.js"></script>
+        <script src="$srv/js/md5.js"></script>
 
-        <link rel="stylesheet" href="./../../../srv/bootstrap/css/bootstrap.min.css" />
-        <script src="./../../../srv/bootstrap/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="$srv/bootstrap/css/bootstrap.min.css" />
+        <script src="$srv/bootstrap/js/bootstrap.min.js"></script>
 
     </head>
     <body style="padding: 10px;">
@@ -28,13 +33,13 @@ class ChangePasswordForm
         <span id='spn_login_state'></span>
         <script>
             function changePassword(){
-                $.post('./../../../srv/api/sign-in/new-seed',{},(d,s)=>{
+                $.post('$srv/api/sign-in/new-seed',{},(d,s)=>{
                     try {
                         var user_name = $('#txt_user_name').val();
                         var user_pass = $('#txt_user_pass').val();
                         var user_pass_hash = getMd5(user_pass);
 
-                        $.post('./../../../srv/api/change-password',{user_name, user_pass_hash},(d,s)=>{
+                        $.post('$srv/api/change-password',{user_name, user_pass_hash},(d,s)=>{
                             console.log(d);
                             try {
                                 if(d['ok'] == 1)
@@ -51,7 +56,7 @@ class ChangePasswordForm
                         });
 
                     } catch (err) {
-
+                        console.log(err);
                     }
                 });
             }

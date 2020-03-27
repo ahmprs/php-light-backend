@@ -7,7 +7,6 @@ class Test
 {
     public static function run()
     {
-        echo (makePage());
-        // resp(1, makePage());
+        resp(1, 'test result');
     }
 }

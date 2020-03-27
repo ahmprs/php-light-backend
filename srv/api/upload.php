@@ -13,19 +13,6 @@ class Upload
 {
     public static function run()
     {
-        $gui = par('gui');
-        if ($gui == 1) {
-            $arrParameters = [];
-
-            $arrParameters["fileToUpload"] = "";
-            $arrTypes["fileToUpload"] = "file";
-
-            $enctype = "multipart/form-data";
-            $html = makeForm('File upload', "./upload", $arrParameters, $arrTypes, $enctype);
-            echo ($html);
-            return;
-        }
-
         $upload_max_allowed_file_size_bytes
         = Settings::get('upload_max_allowed_file_size_bytes');
 
@@ -88,7 +75,7 @@ class Upload
             return resp(0, [
                 'err' => 'file is too large',
                 'file_size_bytes' => $file_size_bytes,
-                'maximum_allowed_file_size_bytes' => $upload_max_allowed_file_size_bytes,
+                'ttt' => $_FILES["fileToUpload"]["name"],
             ]);
         }
 
@@ -98,6 +85,7 @@ class Upload
                 'err' => 'extension not allowed',
                 'extension' => $file_extension,
                 'allowed_formats' => $arr_allowed_formats,
+                'file_uploaded_basic_name' => $file_uploaded_basic_name,
             ]);
         }
 
@@ -128,8 +116,3 @@ class Upload
         }
     }
 }
-
-// How to use:
-// call the page in url with switch gui=1
-// Example:
-// http://localhost/1-WebApps/php-light-backend/php-light-backend/srv/api/upload?gui=1

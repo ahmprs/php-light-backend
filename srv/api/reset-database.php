@@ -10,23 +10,6 @@ class ResetDatabase
 {
     public static function run()
     {
-        $gui = par('gui');
-        if ($gui == 1) {
-            $arrParameters = [];
-
-            $arrParameters["user_name"] = "USER NAME";
-            $arrParameters["user_pass"] = "PASSWORD";
-            $arrParameters["confirm"] = "WARNING: ALL DATA WILL BE LOST. ARE YOU SUER?";
-
-            $arrTypes["user_name"] = "text";
-            $arrTypes["user_pass"] = "password";
-            $arrTypes["confirm"] = "text";
-
-            $html = makeForm('Signup', './reset-database', $arrParameters, $arrTypes);
-            echo ($html);
-            return;
-        }
-
         $u = par('user_name');
         $p = par('user_pass');
         $c = par('confirm');
@@ -46,6 +29,22 @@ class ResetDatabase
         $arr = Schema::run();
         $brr = Seed::run();
         resp(1, ['Schema' => $arr, 'Seed' => $brr]);
+    }
+
+    public static function form()
+    {
+        $arrParameters = [];
+
+        $arrParameters["user_name"] = "USER NAME";
+        $arrParameters["user_pass"] = "PASSWORD";
+        $arrParameters["confirm"] = "WARNING: ALL DATA WILL BE LOST. ARE YOU SUER?";
+
+        $arrTypes["user_name"] = "text";
+        $arrTypes["user_pass"] = "password";
+        $arrTypes["confirm"] = "text";
+
+        $html = makeForm('Signup', './', $arrParameters, $arrTypes);
+        echo ($html);
     }
 }
 // TEST ONLY:

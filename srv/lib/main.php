@@ -85,19 +85,6 @@ function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
     $frm .= "</form>";
     $frm .= "<hr />";
 
-    // acquire the root of document
-    // $doc_root = realpath($_SERVER['DOCUMENT_ROOT']);
-
-    // acquire the location to javascript files
-    // $jquery = diff($doc_root, realpath("$srv/js/jquery.min.js"));
-    // $md5 = diff($doc_root, realpath("$srv/js/md5.js"));
-
-    // make script tag
-    // $scripts = "
-    // <script src='$jquery'></script>
-    // <script src='$md5'></script>
-    // ";
-
     $html = <<<HTML
 
     <!DOCTYPE html>
@@ -106,7 +93,7 @@ function makeForm($title, $action, $arrParameters, $arrTypes, $enctype = '')
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <title>$title</title>
-            $scripts
+
             <style>
                 .heading{
                     background-color: #333;
