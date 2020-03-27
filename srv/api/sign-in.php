@@ -97,47 +97,10 @@ class SignIn
     {
         $id = User::getUserId();
         if ($id == '') {
-            resp(1, 'signed out');
+            resp(0, 'signed out');
         } else {
             resp(1, 'signed in');
         }
-    }
-
-    public static function changePassword()
-    {
-        $user_id = User::getUserId();
-        if ($user_id == '') {
-
-            return resp(0, [
-                'err' => 'not signed in yet',
-                'hint' => 'please sign in first',
-            ]);
-
-        }
-
-        $user_pass_hash = par('user_pass_hash');
-        if ($user_pass_hash == '') {
-            return resp(0, [
-                'err' => 'missing hash of password',
-                'hint' => 'make md5 hash of password',
-            ]);
-        }
-
-        $sql = "update `tbl_users` set `user_pass_hash` = '$user_pass_hash' where `user_id` = $user_id;";
-
-        $r = DB::connect()->update($sql);
-        return;
-
-        $n = $r->getNumberOfAffectedRows();
-
-        if ($n == 1) {
-            return resp(1, 'password changed successfully');
-        }
-        return resp(0, [
-            'err' => 'password change failed!',
-            'sql' => $sql,
-            'n' => $n,
-        ]);
     }
 }
 

@@ -1,0 +1,9 @@
+button {
+  margin: 5px;
+}
+
+input[type="text"],
+input[type="password"] {
+  margin: 5px;
+  padding: 5px;
+}

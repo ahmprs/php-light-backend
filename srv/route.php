@@ -5,15 +5,18 @@ require_once "$srv/api/test.php";
 require_once "$srv/lib/main.php";
 require_once "$srv/api/say-hello.php";
 require_once "$srv/api/reset-database.php";
+require_once "$srv/api/sign-in-form.php";
 require_once "$srv/api/sign-in.php";
 require_once "$srv/api/sign-out.php";
 require_once "$srv/api/sign-up.php";
+require_once "$srv/api/sign-up-form.php";
 require_once "$srv/api/upload.php";
 require_once "$srv/api/date-time-info.php";
+require_once "$srv/api/change-password.php";
+require_once "$srv/api/change-password-form.php";
 
 class Route
 {
-
     public static function run()
     {
         $path = Route::getPath();
@@ -29,14 +32,16 @@ class Route
             case '/api/reset-database':return ResetDatabase::run();
 
             case '/api/sign-in':return SignIn::run();
-            case '/api/sign-in/form':return SignIn::formm();
+            case '/api/sign-in/form':return SignInForm::run();
             case '/api/sign-in/new-seed':return SignIn::newSeed();
             case '/api/sign-in/last-seed':return SignIn::lastSeed();
             case '/api/sign-in/state':return SignIn::getLoginState();
-            case '/api/sign-in/change-password':return SignIn::changePassword();
+            case '/api/change-password':return changePassword::run();
+            case '/api/change-password/form':return ChangePasswordForm::run();
 
             case '/api/sign-out':return SignOut::run();
             case '/api/sign-up':return SignUp::run();
+            case '/api/sign-up/form':return SignUpForm::run();
             case '/api/upload':return Upload::run();
 
             case '/api/date-time-info':return DateTimeInfo::run();

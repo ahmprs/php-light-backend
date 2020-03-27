@@ -8,7 +8,7 @@ class DB
 {
     private $arrSettings = null;
     private $sqlStr = '';
-    private $err = '';
+    public $err = '';
     private $lastRecId = -1;
     private $recCnt = -1;
     private $tbl = [];
@@ -90,15 +90,17 @@ class DB
     public function update($sql)
     {
         if ($this->cn === null) {
+            $this->err = 'no connection';
             return $this;
         }
 
         if ($this->cn->query($sql) === true) {
             $this->queryExecutedSuccessfully = true;
-            $this->recCnt = $this->cn->affected_rows;
-        } else {
-            $this->recCnt = 0;
+            $this->err = "";
         }
+
+        $this->err = $this->cn->connect_error;
+        $this->recCnt = $this->cn->affected_rows;
         $this->cn->close();
         return $this;
     }
