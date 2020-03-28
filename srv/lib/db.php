@@ -53,6 +53,7 @@ class DB
     public function select($sql)
     {
         if ($this->cn === null) {
+            $this->err = 'no connection';
             return $this;
         }
 
