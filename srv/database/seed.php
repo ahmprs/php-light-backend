@@ -1,10 +1,10 @@
 <?php
 $srv = realpath(__dir__ . "../../");
-require_once "$srv/lib/db.php";
+require_once "$srv/lib/dbs.php";
+require_once "$srv/settings.php";
 
 class Seed
 {
-
     public static function run()
     {
         $arrResult = [];
@@ -19,21 +19,18 @@ class Seed
         return $arrResult;
     }
 
-    public static function execSql($sql, $ignoreDatabaseName = false)
+    public static function execSql($sql, $credentials = null)
     {
-        $r = DB::connect($ignoreDatabaseName)->runSql($sql);
-        $affected_rows = $r->getNumberOfAffectedRows();
-        $isSuccessful = $r->isSuccessful();
-
-        return ['sql' => $sql, 'affected_rows' => $affected_rows, 'is_successful' => $isSuccessful];
+        $r = DBS::runSql($sql, $credentials);
+        return $r;
     }
 
-    public static function execSqlArr($arrSql, $ignoreDatabaseName = false)
+    public static function execSqlArr($arrSql, $credentials = null)
     {
         $arrResult = [];
         $n = count($arrSql);
         for ($i = 0; $i < $n; $i++) {
-            array_push($arrResult, Seed::execSql($arrSql[$i], $ignoreDatabaseName));
+            array_push($arrResult, Schema::execSql($arrSql[$i], $credentials));
         }
         return $arrResult;
     }

@@ -6,15 +6,25 @@ require_once "$srv/lib/main.php";
 
 class DBS
 {
-    private static function connect()
+    private static function connect($credentials = null)
     {
-        $stg = Settings::getSettings();
-        $mysqli = new mysqli(
-            $stg['database_server_name'],
-            $stg['database_username'],
-            $stg['database_password'],
-            $stg['database_name']
-        );
+        $mysqli = null;
+        if ($credentials == null) {
+            $stg = Settings::getSettings();
+            $mysqli = new mysqli(
+                $stg['database_server_name'],
+                $stg['database_username'],
+                $stg['database_password'],
+                $stg['database_name']
+            );
+        } else {
+            $mysqli = new mysqli(
+                $credentials['database_server_name'],
+                $credentials['database_username'],
+                $credentials['database_password'],
+                $credentials['database_name']
+            );
+        }
         $mysqli->query("set character_set_client='utf8'");
         $mysqli->query("set collation_connection='utf8_general_ci'");
         $mysqli->query("set character_set_results='utf8'");
@@ -348,5 +358,39 @@ class DBS
                 'sql' => $sql,
             ];
         }
+    }
+
+    // use this method for DDL sql requirements.
+    public static function runSql($sql, $credentials = null)
+    {
+        $mysqli = DBS::connect($credentials);
+
+        /* check connection */
+        if (mysqli_connect_errno()) {
+            return [
+                'err' => mysqli_connect_error(),
+                'sql' => $sql,
+                'affected_rows_count' => $mysqli->affected_rows,
+            ];
+        }
+
+        $r = null;
+        if (!$mysqli->query($sql)) {
+            $r = [
+                'err' => 'query execution failed.',
+                'mysql_error' => $mysqli->error,
+                'mysqli_connection' => $mysqli,
+                'sql' => $sql,
+            ];
+            $mysqli->close();
+            return $r;
+        }
+
+        $r = [
+            'err' => '',
+            'affected_rows_count' => $mysqli->affected_rows,
+        ];
+        $mysqli->close();
+        return $r;
     }
 }

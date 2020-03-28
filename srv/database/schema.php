@@ -1,22 +1,28 @@
 <?php
 $srv = realpath(__dir__ . "../../");
-require_once "$srv/lib/db.php";
+require_once "$srv/lib/dbs.php";
+require_once "$srv/settings.php";
 
 class Schema
 {
-    public static function Run()
+    public static function run()
     {
-        $arrResult = [];
+        $crd_ignore_db = [
+            'database_server_name' => Settings::get('database_server_name'),
+            'database_username' => Settings::get('database_username'),
+            'database_password' => Settings::get('database_password'),
+            'database_name' => '',
+        ];
+        //-------------------------------------------------
 
+        $arrResult = [];
         $arr = Schema::execSqlArr([
             "DROP DATABASE if EXISTS db_test;",
             "CREATE DATABASE `db_test`;",
-        ], $ignoreDatabaseName = true);
+        ], $crd_ignore_db);
         array_push($arrResult, $arr);
 
         $arr = Schema::execSqlArr([
-            "USE DATABASE db_test;",
-
             "
                 CREATE TABLE `db_test`.`tbl_users`(
                     `user_id` INT NOT NULL AUTO_INCREMENT,
@@ -60,22 +66,24 @@ class Schema
         return $arrResult;
     }
 
-    public static function execSql($sql, $ignoreDatabaseName = false)
+    public static function execSql($sql, $credentials = null)
     {
-        $r = DB::connect($ignoreDatabaseName)->runSql($sql);
-        $affected_rows = $r->getNumberOfAffectedRows();
-        $isSuccessful = $r->isSuccessful();
-
-        return ['sql' => $sql, 'affected_rows' => $affected_rows, 'is_successful' => $isSuccessful];
+        $r = DBS::runSql($sql, $credentials);
+        return $r;
     }
 
-    public static function execSqlArr($arrSql, $ignoreDatabaseName = false)
+    public static function execSqlArr($arrSql, $credentials = null)
     {
         $arrResult = [];
         $n = count($arrSql);
         for ($i = 0; $i < $n; $i++) {
-            array_push($arrResult, Schema::execSql($arrSql[$i], $ignoreDatabaseName));
+            array_push($arrResult, [
+                'sql' => $arrSql[$i],
+                'sql_execution_result' => Schema::execSql($arrSql[$i], $credentials),
+            ]);
         }
         return $arrResult;
     }
 }
+
+// Schema::run();

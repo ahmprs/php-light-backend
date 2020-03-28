@@ -5,6 +5,7 @@ require_once "$srv/api/test.php";
 require_once "$srv/lib/main.php";
 require_once "$srv/api/say-hello.php";
 require_once "$srv/api/reset-database.php";
+require_once "$srv/api/reset-database-form.php";
 require_once "$srv/api/sign-in-form.php";
 require_once "$srv/api/sign-in.php";
 require_once "$srv/api/sign-out.php";
@@ -31,7 +32,7 @@ class Route
             case '/api/say-hello/help':return SayHello::help();
 
             case '/api/reset-database':return ResetDatabase::run();
-            case '/api/reset-database/form':return ResetDatabase::form();
+            case '/api/reset-database/form':return ResetDatabaseForm::run();
 
             case '/api/sign-in':return SignIn::run();
             case '/api/sign-in/form':return SignInForm::run();
