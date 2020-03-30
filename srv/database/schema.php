@@ -60,6 +60,26 @@ class Schema
             ) ENGINE = InnoDB;
             ",
             //---------------------------------------------
+            "
+                CREATE TABLE `db_test`.`tbl_posts`(
+                    `post_id` INT NOT NULL AUTO_INCREMENT,
+                    `post_title` VARCHAR(200) NOT NULL,
+                    `post_owner_id` INT NOT NULL,
+                    `post_audit_id` INT NOT NULL,
+                    `post_parent_id` INT NOT NULL,
+                    `post_text` VARCHAR(1024) NOT NULL,
+                    `post_access_level` INT NOT NULL,
+                    `post_file_name` VARCHAR(200) NOT NULL,
+                    `post_file_ext` VARCHAR(16) NOT NULL,
+                    `post_create_gdp` INT NOT NULL,
+                    `post_expire_gdp` INT NOT NULL,
+                    `post_desc` VARCHAR(1024) NOT NULL,
+                    PRIMARY KEY(`post_id`),
+                    FOREIGN KEY(post_owner_id) REFERENCES tbl_users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE = InnoDB;
+            ",
+            //---------------------------------------------
+
         ]);
         array_push($arrResult, $arr);
 
@@ -85,5 +105,3 @@ class Schema
         return $arrResult;
     }
 }
-
-// Schema::run();

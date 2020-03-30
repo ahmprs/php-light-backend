@@ -1,4 +1,5 @@
 <?php
+$srv = realpath(__dir__ . "../../");
 require_once "$srv/lib/user.php";
 
 class ChangePassword

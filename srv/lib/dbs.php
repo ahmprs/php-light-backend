@@ -107,7 +107,8 @@ class DBS
 
             $data = [];
             while ($stmt->fetch()) {
-                $data[] = $results;
+                $record = unserialize(serialize($results));
+                array_push($data, $record);
             }
 
             $stmt->free_result();
@@ -133,6 +134,10 @@ class DBS
 
     public static function insert($sql, $types = '', $params = [])
     {
+        if ($types == '') {
+            return DBS::runSql($sql);
+        }
+
         // connect to database using given credentials in settings.php
         $mysqli = DBS::connect();
 
@@ -380,6 +385,7 @@ class DBS
                 'err' => 'query execution failed.',
                 'mysql_error' => $mysqli->error,
                 'mysqli_connection' => $mysqli,
+                'affected_rows_count' => 0,
                 'sql' => $sql,
             ];
             $mysqli->close();

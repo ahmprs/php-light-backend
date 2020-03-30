@@ -17,6 +17,12 @@ require_once "$srv/api/date-time-info.php";
 require_once "$srv/api/change-password.php";
 require_once "$srv/api/change-password-form.php";
 
+require_once "$srv/api/make-post.php";
+require_once "$srv/api/make-post-form.php";
+require_once "$srv/api/posts.php";
+
+require_once "$srv/lib/dbs.php";
+
 class Route
 {
     public static function run()
@@ -55,7 +61,17 @@ class Route
             case '/api/date-time-info/gdp':return DateTimeInfo::gdp();
             case '/api/date-time-info/stamp':return DateTimeInfo::stamp();
 
-            default:return resp(0, "wrong path: $path");
+            case '/api/make-post/form':return MakePostForm::run();
+            case '/api/make-post-text':return MakePost::makePostText();
+            case '/api/make-post-file':return MakePost::makePostFile();
+
+            case '/api/posts':return Posts::all();
+            case '/api/posts/expired':return Posts::expired();
+
+            case '/api/posts/me':return Posts::me();
+            case '/api/posts/me/expired':return Posts::meExpired();
+
+            default:return Posts::getPost($path);
         }
     }
 

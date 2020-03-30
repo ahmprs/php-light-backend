@@ -1,42 +1,58 @@
 <?php
 
-$srv = realpath (__dir__."../../");
+$srv = realpath(__dir__ . "../../");
 require_once "$srv/settings.php";
 require_once "$srv/lib/main.php";
 
-class File {
+class File
+{
     public $fileName = '';
 
-    function getContent()
+    public function getContent()
     {
         return file_get_contents($this->fileName);
     }
 
-    function getLines()
+    public function getContentAsByteArray()
+    {
+        $handle = fopen($this->fileName, "rb");
+        $contents = fread($handle, filesize($this->fileName));
+        $arr = unpack("h*", $contents);
+        fclose($handle);
+        return $arr;
+
+        // $handle = fopen($THIS->filename, "rb");
+        // $fsize = filesize($filename);
+        // $contents = fread($handle, $fsize);
+        // $byteArray = unpack("N*",$contents);
+    }
+
+    public function getLines()
     {
         $content = $this->getContent($this->fileName);
         $lines = explode("\n", $content);
         return $lines;
     }
-    
-    function create()
+
+    public function create()
     {
         $fp = fopen($this->fileName, 'w');
         fclose($fp);
     }
 
-    function setContent($txtContent)
+    public function setContent($txtContent)
     {
         $fp = fopen($this->fileName, 'w');
         fwrite($fp, $txtContent);
         fclose($fp);
     }
-    
-    function exists(){
+
+    public function exists()
+    {
         return file_exists($this->fileName);
     }
 
-    function remove()
+    public function remove()
     {
         if (file_exists($this->fileName)) {
             $res = unlink($this->fileName);
@@ -49,33 +65,46 @@ class File {
             return 0;
         }
     }
- }
+}
 
-class Dir{
+class Dir
+{
     public $path = '';
 
-    function make()
+    public function make()
     {
-        if (!mkdir($this->path, 0700, true)) return 0;
-        else return 1;
+        if (!mkdir($this->path, 0700, true)) {
+            return 0;
+        } else {
+            return 1;
+        }
+
     }
 
-    function exists(){
+    public function exists()
+    {
         return (is_dir($this->path));
     }
 
-    public function remove($dir=null) {
-        if($dir == null) $dir = $this->path;
-        $files = array_diff(scandir($dir), array('.','..'));
+    public function remove($dir = null)
+    {
+        if ($dir == null) {
+            $dir = $this->path;
+        }
+
+        $files = array_diff(scandir($dir), array('.', '..'));
         foreach ($files as $file) {
             (is_dir("$dir/$file")) ? $this->remove("$dir/$file") : unlink("$dir/$file");
         }
         return rmdir($dir);
-    }    
+    }
     // gets all file recursively.
-    function getAllFiles($p=null)
+    public function getAllFiles($p = null)
     {
-        if($p == null) $p = $this->path;
+        if ($p == null) {
+            $p = $this->path;
+        }
+
         $result = array();
         $cdir = scandir($p);
         foreach ($cdir as $key => $value) {
@@ -91,43 +120,59 @@ class Dir{
     }
 }
 
-class FS{
-    static function file($fileName){
+class FS
+{
+    public static function file($fileName)
+    {
         $f = new File();
         $f->fileName = $fileName;
         return $f;
     }
 
-    static function dir($path){
+    public static function dir($path)
+    {
         $d = new Dir();
         $d->path = $path;
         return $d;
     }
 
-    static function getStorageRootDirectory(){
+    public static function getStorageRootDirectory()
+    {
         return realpath(Settings::get('storage_root_directory'));
     }
 
-    static function getUploadsDirectory(){
+    public static function getUploadsDirectory()
+    {
         return realpath(Settings::get('uploads_directory'));
     }
-    
-    static function getUsersDirectory(){
+
+    public static function getUsersDirectory()
+    {
         return realpath(Settings::get('users_directory'));
     }
 
-    static function makeUserDirectory($user_id){
+    public static function makeUserDirectory($user_id)
+    {
         $path = FS::getUsersDirectory();
         $path = "$path/user_$user_id/";
-        if (is_dir($path)) return 1;
-        else return FS::dir($path)-> make();
+        if (is_dir($path)) {
+            return 1;
+        } else {
+            return FS::dir($path)->make();
+        }
+
     }
 
-    static function getUserDirectory($user_id){
+    public static function getUserDirectory($user_id)
+    {
         $path = FS::getUsersDirectory();
         $path = "$path/user_$user_id/";
-        if(is_dir($path))return realpath($path);
-        else return '';
+        if (is_dir($path)) {
+            return realpath($path);
+        } else {
+            return '';
+        }
+
     }
 }
 

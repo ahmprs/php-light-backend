@@ -17,10 +17,11 @@ class Settings
             'storage_root_directory' => "$srv/Storage",
             'uploads_directory' => "$srv/Storage/uploads",
             'users_directory' => "$srv/Storage/users",
+            'posts_directory' => "$srv/Storage/posts",
 
             // 5 MB
             'upload_max_allowed_file_size_bytes' => 5000000,
-            'upload_allowed_formats' => ['txt', 'pdf', 'doc', 'docx', 'jpg', 'png', 'gif'],
+            'upload_allowed_formats' => ['txt', 'pdf', 'doc', 'docx', 'jpg', 'png', 'gif', 'xlsx', 'xls'],
 
         ];
     }
