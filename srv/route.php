@@ -65,11 +65,10 @@ class Route
             case '/api/make-post-text':return MakePost::makePostText();
             case '/api/make-post-file':return MakePost::makePostFile();
 
-            case '/api/posts':return Posts::all();
-            case '/api/posts/expired':return Posts::expired();
-
-            case '/api/posts/me':return Posts::me();
-            case '/api/posts/me/expired':return Posts::meExpired();
+            case '/posts':return Posts::all();
+            case '/posts/expired':return Posts::expired();
+            case '/posts/me':return Posts::me();
+            case '/posts/me/expired':return Posts::meExpired();
 
             default:return Posts::getPost($path);
         }

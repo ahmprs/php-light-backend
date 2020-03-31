@@ -127,6 +127,12 @@ class MakePost
         }
 
         // move temp file to destination
+        if ($file_extension == 'pdf') {
+            $file_new_name .= 'f';
+            $file_extension .= 'f';
+            $post_file_name .= "f";
+        }
+
         if (move_uploaded_file($file_tmp_name, $file_new_name)) {
             // insert record here
             $sql = "

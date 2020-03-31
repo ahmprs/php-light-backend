@@ -21,8 +21,7 @@ class Settings
 
             // 5 MB
             'upload_max_allowed_file_size_bytes' => 5000000,
-            'upload_allowed_formats' => ['txt', 'pdf', 'doc', 'docx', 'jpg', 'png', 'gif', 'xlsx', 'xls'],
-
+            'upload_allowed_formats' => ['txt', 'pdf', 'doc', 'docx', 'jpg', 'png', 'gif', 'xlsx', 'xls', 'mht'],
         ];
     }
 
