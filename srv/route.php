@@ -65,6 +65,8 @@ class Route
             case '/api/make-post-text':return MakePost::makePostText();
             case '/api/make-post-file':return MakePost::makePostFile();
 
+            case '/api/remove-post':return MakePost::removePost();
+
             case '/posts':return Posts::all();
             case '/posts/expired':return Posts::expired();
             case '/posts/me':return Posts::me();

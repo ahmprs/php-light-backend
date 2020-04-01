@@ -179,6 +179,67 @@ class MakePost
         //----
     }
 
+    public static function removePost()
+    {
+        MakePost::accessCheck();
+        $post_file_name = par('post_file_name');
+        if ($post_file_name == null) {
+            return resp(0, 'missing post file name');
+        }
+
+        $r = DBS::select('select * from tbl_posts where post_file_name=? limit 1', 's', [$post_file_name]);
+        try {
+            $cnt = count($r['records']);
+            if ($cnt == 0) {
+                return resp(0, 'post not found');
+            }
+
+            $p = $r['records'][0];
+            $post_owner_id = $p['post_owner_id'];
+
+            if ($post_owner_id != User::getUserId()) {
+                return resp(0, [
+                    'err' => 'access denied',
+                    'hint' => 'only the post owners can remove their posts',
+                    'post_owner' => $post_owner_id,
+                    'current_user' => User::getUserId(),
+                ]);
+            }
+
+            $rs = DBS::delete('delete from tbl_posts where post_file_name=?', 's', [$post_file_name]);
+
+            try {
+                if ($rs['affected_rows_count'] > 0) {
+                    $dir = Settings::get('posts_directory');
+                    $fn = $p['post_file_name'];
+                    $ext = $p['post_file_ext'];
+                    $fnn = realpath("$dir/$fn.$ext");
+
+                    if (!FS::file($fnn)->exists()) {
+
+                        return resp(0, [
+                            'err' => 'missing post file',
+                            'fnn' => "$fnn",
+                        ]);
+                    }
+
+                    if (FS::file($fnn)->remove() == 0) {
+                        return resp(0, 'unable to remove post file');
+                    }
+
+                    return resp(1, 'post removed');
+                }
+            } catch (\Throwable $th) {
+                return resp(0, 'unable to remove post');
+            }
+        } catch (\Throwable $th) {
+            return resp(0, [
+                'err' => 'select statement failed',
+                'exception' => $th,
+            ]);
+        }
+    }
+
     private static function accessCheck()
     {
         if (User::getUserId() == '') {
