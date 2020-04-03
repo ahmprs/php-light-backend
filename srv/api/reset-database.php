@@ -35,4 +35,20 @@ class ResetDatabase
         $brr = Seed::run();
         resp(1, ['Schema' => $arr, 'Seed' => $brr]);
     }
+
+    public static function getAllSqlStatements()
+    {
+        // Schema::
+
+        $arr = Schema::getAllSqls();
+        $out = '';
+        $n = count($arr);
+        $sql = null;
+        for ($i = 0; $i < $n; $i++) {
+            $sql = $arr[$i];
+            $out .= "<h4>$sql</h4>";
+        }
+        $out = "<div style='padding: 10px;'>$out</div>";
+        echo ($out);
+    }
 }

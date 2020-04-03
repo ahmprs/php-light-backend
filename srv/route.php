@@ -20,6 +20,9 @@ require_once "$srv/api/change-password-form.php";
 require_once "$srv/api/make-post.php";
 require_once "$srv/api/make-post-form.php";
 require_once "$srv/api/posts.php";
+require_once "$srv/api/follow.php";
+require_once "$srv/api/comments.php";
+require_once "$srv/api/chat.php";
 
 require_once "$srv/lib/dbs.php";
 
@@ -38,6 +41,7 @@ class Route
             case '/api/say-hello/help':return SayHello::help();
 
             case '/api/reset-database':return ResetDatabase::run();
+            case '/api/reset-database/sql-statements':return ResetDatabase::getAllSqlStatements();
             case '/api/reset-database/form':return ResetDatabaseForm::run();
 
             case '/api/sign-in':return SignIn::run();
@@ -71,6 +75,26 @@ class Route
             case '/posts/expired':return Posts::expired();
             case '/posts/me':return Posts::me();
             case '/posts/me/expired':return Posts::meExpired();
+
+            case '/posts/like':return Posts::likePost(1);
+            case '/posts/dislike':return Posts::likePost(0);
+            case '/posts/like/count':return Posts::likeCount(1);
+            case '/posts/dislike/count':return Posts::likeCount(0);
+
+            case '/api/follow':return Follow::doFollow();
+            case '/api/unfollow':return Follow::doUnFollow();
+            case '/api/followers':return Follow::getFollowers();
+            case '/api/followings':return Follow::getFollowings();
+
+            case '/api/comments/add-comment':return Comments::addComment();
+            case '/api/comments/remove-comment':return Comments::removeComment();
+
+            case '/api/chat/make-chat-session':return Chat::makeChatSession();
+            case '/api/chat/dismiss-chat-session':return Chat::dismissChatSession();
+            case '/api/chat/add-member':return Chat::addMember();
+            case '/api/chat/fire-member':return Chat::fireMember();
+            case '/api/chat/pull-message':return Chat::pullMessage();
+            case '/api/chat/push-message':return Chat::pushMessage();
 
             default:return Posts::getPost($path);
         }

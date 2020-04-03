@@ -6,6 +6,8 @@ require_once "$srv/lib/dbs.php";
 require_once "$srv/lib/fs.php";
 require_once "$srv/lib/calendar.php";
 
+require_once "$srv/api/posts-present.php";
+
 class Posts
 {
     public static function all()
@@ -56,7 +58,7 @@ class Posts
 
     public static function getPost($path)
     {
-        $fn = Posts::diff($path, '/posts/');
+        $fn = diff($path, '/posts/');
         $r = DBS::select("select * from tbl_posts where post_file_name = ? ", 's', [$fn]);
         if (count($r['records']) > 0) {
             try {
@@ -77,9 +79,7 @@ class Posts
                     } else {
                         // $content = FS::file($pfe)->getContentAsByteArray()[1];
                     }
-
-                    return Posts::present($f, $e, $content);
-
+                    return PostsPresent::run($f, $e, $content);
                     // return resp(1, [
                     //     'pst' => $pst,
                     //     // 'pfe' => $pfe,
@@ -89,21 +89,14 @@ class Posts
                     return resp(0, 'missing file');
                 }
             } catch (\Throwable $th) {
-                return resp(0, 'unable to read file content');
+                return resp(0, [
+                    'err' => 'unable to read file content',
+                    // 'rec' => $r,
+                    'ex' => $th,
+                ]);
             }
         }
         return resp(0, "not found: $path");
-    }
-
-    private static function diff($strA, $strB)
-    {
-        // swap $strA and $strB if needed
-        if (strlen($strA) < strlen($strB)) {
-            $t = $strA;
-            $strA = $strB;
-            $strB = $t;
-        }
-        return substr($strA, strlen($strB));
     }
 
     private static function accessCheck()
@@ -130,76 +123,50 @@ class Posts
         }
     }
 
-    private static function present($file_name, $extension, $content)
+    public static function likePost($like_val)
     {
-        $srv_abs = realpath(__dir__ . "../../");
-        require_once "$srv_abs/lib/main.php";
-        $root = realpath($_SERVER['DOCUMENT_ROOT']);
-        $srv = diff($srv_abs, $root);
-        $srv = str_replace("\\", "/", $srv);
-
-        $url_doc = "$srv/storage/posts/$file_name.$extension";
-
-        // present text posts
-        if (in_array($extension, ['txt'])) {
-            // present test
-            $content = "<p>$content</p>";
-        }
-
-        // present doc or docx
-        else if (in_array($extension, ['docx'])) {
-            // users can download the document with the following link
-            $content = "<a href='$url_doc'>Download Link </a>";
-
-            // TODO:
-            // present content...
-        } else if (in_array($extension, ['pdff'])) {
-            // NOTE:
-            // head over to the following url to get more
-            // https://pspdfkit.com/blog/2018/render-pdfs-in-the-browser-with-pdf-js/
-
-            // $content = "
-            // <iframe src='$srv/viewer/web/viewer.html?file=$url_doc'
-            // style='border: none; width:100%' />
-            // ";
-
-            $content = "
-            <embed id='emb_pdf' src='$srv/viewer/web/viewer.html?file=$url_doc' type='text/html'
-            style='border: none; width:100%;' >
+        $r = null;
+        try {
+            $post_id = par('post_id');
+            if ($post_id == '') {
+                return resp(0, 'missing post_id');
+            }
+            $sql = "
+            INSERT INTO `tbl_likes` (`rec_id`, `post_id`, `like_val`) VALUES (NULL, ?, ?);
             ";
-
-        }
-
-        $html = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Present Post</title>
-
-        <script src="$srv/js/jquery.min.js"></script>
-        <script src="$srv/js/md5.js"></script>
-        <link rel="stylesheet" href="$srv/bootstrap/css/bootstrap.min.css" />
-        <script src="$srv/bootstrap/js/bootstrap.min.js"></script>
-    </head>
-    <body style="padding: 10px;" onload="init();">
-        <h1 class="alert alert-success">USER POST</h1>
-        $content
-        <script>
-            function init(){
-                var emb_pdf = document.getElementById('emb_pdf');
-                if(emb_pdf==null) return;
-                emb_pdf.style.height = (window.innerHeight-150)+'px';
-                // console.log(emb_pdf);
-                // debugger;
+            $r = DBS::insert($sql, 'ii', [$post_id, $like_val]);
+            if ($r['affected_rows_count'] == 1) {
+                return resp(1, 'like succeeded');
             }
 
-        </script>
-    </body>
-    </html>
+            return resp(0, 'like failed');
 
-HTML;
-        echo ($html);
+        } catch (\Throwable $th) {
+            return resp(0, [
+                'err' => 'unable to like the given post',
+                'r' => $r,
+            ]);
+        }
+    }
+
+    public static function likeCount($like_val)
+    {
+        $r = null;
+        try {
+            $post_id = par('post_id');
+            if ($post_id == '') {
+                return resp(0, 'missing post_id');
+            }
+            $sql = "
+            SELECT COUNT(rec_id) as like_cnt from tbl_likes where post_id=? and like_val=?;
+            ";
+            $r = DBS::select($sql, 'ii', [$post_id, $like_val]);
+            return resp(1, $r);
+        } catch (\Throwable $th) {
+            return resp(0, [
+                'err' => 'unable to like the given post',
+                'r' => $r,
+            ]);
+        }
     }
 }
