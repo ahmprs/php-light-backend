@@ -225,13 +225,50 @@ class Chat
             return resp(0, 'unable to add new member to the requested chat session');
         }
     }
-    public static function fireMember()
+
+    public static function leaveChatSession()
     {
-        return resp(1, [
-            'title' => 'fire a member from chat session',
-            'mag' => 'under construction',
-        ]);
+        $user_id = User::getUserId();
+        if ($user_id == '') {
+            return resp(0, [
+                'err' => 'access denied',
+                'hint' => 'please login first',
+            ]);
+        }
+
+        $chat_session_id = par('chat_session_id');
+        if ($chat_session_id == '') {
+            return resp(0, 'missing chat_session_id');
+        }
+
+        if (!Chat::chatSessionExists($chat_session_id)) {
+            return resp(0, 'invalid chat_session_id');
+        }
+
+        if (!Chat::isMemberOfChatSession($user_id, $chat_session_id)) {
+            return resp(0, 'you are not a member of requested chat_session');
+        }
+
+        try {
+            $r = DBS::delete(
+                "delete from tbl_chat_members where chat_session_id=? and chat_member_user_id=?",
+                'ii',
+                [
+                    $chat_session_id,
+                    $user_id,
+                ]
+            );
+            if ($r['affected_rows_count'] == 0) {
+                resp(0, 'chat session leave process failed');
+            }
+            resp(1, 'chat session leave process succeeded');
+        }
+        //
+         catch (\Throwable $th) {
+            resp(0, 'unable to finish chat session leave process');
+        }
     }
+
     public static function pushMessage()
     {
         $user_id = User::getUserId();
@@ -245,6 +282,33 @@ class Chat
         $chat_session_id = par('chat_session_id');
         if ($chat_session_id == '') {
             return resp(0, 'missing chat_session_id');
+        }
+
+        // check if the user is a member of requested chat_session
+        try {
+            $r = DBS::select(
+                "select count(rec_id) from tbl_chat_members where chat_session_id=? and chat_member_user_id=?",
+                'ii',
+                [
+                    $chat_session_id,
+                    $user_id,
+                ]
+            );
+            $cnt = count($r['records']);
+            if ($cnt == 0) {
+                return resp(0, [
+                    'err' => 'you are not a member of requested chat_session',
+                    'hint' => 'ask a member to add you to the requested chat session',
+                ]);
+            }
+        } //
+
+         catch (\Throwable $th) {
+            return resp(0, [
+                'err' => 'unable to check if the user belongs to the requested chat session',
+                'hint' => 'check sql statement',
+            ]);
+
         }
 
         $message_text = par('message_text');
@@ -292,17 +356,92 @@ class Chat
                 ]);
             }
 
-            return resp(0, 'push message succeeded');
+            return resp(1, 'push message succeeded');
         } //
          catch (\Throwable $th) {
             return resp(0, 'unable  to finish push message process');
         }
     }
+
     public static function pullMessage()
     {
-        return resp(1, [
-            'title' => 'pull messages from chat members',
-            'mag' => 'under construction',
-        ]);
+        $user_id = User::getUserId();
+        if ($user_id == '') {
+            return resp(0, [
+                'err' => 'access denied',
+                'hint' => 'please login first',
+            ]);
+        }
+
+        $chat_session_id = par('chat_session_id');
+        if ($chat_session_id == '') {
+            return resp(0, [
+                'err' => 'missing chat_session_id',
+            ]);
+        }
+
+        $last_message_id = par('last_message_id');
+        if ($last_message_id == '') {
+            $last_message_id = 0;
+        }
+
+        try {
+            $r = DBS::select(
+                "select * from tbl_chat_messages where message_id>? and chat_session_id=?",
+                'ii',
+                [
+                    $last_message_id,
+                    $chat_session_id,
+                ]
+            );
+            return resp(1, $r['records']);
+        }
+        //
+         catch (\Throwable $th) {
+            return resp(0, 'unable to fetch records from database');
+        }
+    }
+
+    private static function isMemberOfChatSession($user_id, $chat_session_id)
+    {
+        $p = DBS::select(
+            "select rec_id from tbl_chat_members where chat_session_id=? and chat_member_user_id=?",
+            'ii',
+            [
+                $chat_session_id,
+                $user_id,
+            ]
+        );
+        $cnt = count($p['records']);
+        if ($cnt == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
+    private static function chatSessionExists($chat_session_id)
+    {
+        try {
+            $r = DBS::select(
+                "select chat_session_id from tbl_chat_sessions where chat_session_id=?",
+                'i',
+                [
+                    $chat_session_id,
+                ]
+            );
+            $cnt = count($r['records']);
+            if ($cnt == 0) {
+                return false;
+            } else {
+                return true;
+            }
+
+        } //
+
+         catch (\Throwable $th) {
+            return false;
+        }
     }
 }

@@ -229,6 +229,7 @@ class DBS
                 'types' => $types,
                 'params' => $params,
                 'sql' => $sql,
+                'affected_rows_count'=>0,
             ];
         }
 
@@ -253,6 +254,7 @@ class DBS
                     'types' => $types,
                     'params' => $params,
                     'sql' => $sql,
+                    'affected_rows_count'=>0,
                 ];
             }
 
@@ -271,6 +273,7 @@ class DBS
                     'types' => $types,
                     'params' => $params,
                     'sql' => $sql,
+                    'affected_rows_count'=>0,
                 ];
             }
 
@@ -289,6 +292,7 @@ class DBS
                 'types' => $types,
                 'parameters' => $params,
                 'sql' => $sql,
+                'affected_rows_count'=>0,
             ];
         }
     }

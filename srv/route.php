@@ -23,6 +23,8 @@ require_once "$srv/api/posts.php";
 require_once "$srv/api/follow.php";
 require_once "$srv/api/comments.php";
 require_once "$srv/api/chat.php";
+require_once "$srv/api/survey.php";
+
 
 require_once "$srv/lib/dbs.php";
 
@@ -92,9 +94,19 @@ class Route
             case '/api/chat/make-chat-session':return Chat::makeChatSession();
             case '/api/chat/dismiss-chat-session':return Chat::dismissChatSession();
             case '/api/chat/add-member':return Chat::addMember();
-            case '/api/chat/fire-member':return Chat::fireMember();
+            case '/api/chat/leave':return Chat::leaveChatSession();
             case '/api/chat/pull-message':return Chat::pullMessage();
             case '/api/chat/push-message':return Chat::pushMessage();
+
+            case '/api/survey/make':return Survey::makeSurvey();
+            case '/api/survey/add-choice':return Survey::addChoice();
+            case '/api/survey/remove-choice':return Survey::removeChoice();
+            case '/api/survey/remove':return Survey::removeSurvey();
+            case '/api/survey/publish':return Survey::publishSurvey();
+            case '/api/survey/hide':return Survey::hideSurvey();
+            case '/api/survey/report':return Survey::report();
+            case '/api/survey/vote':return Survey::vote();
+
 
             default:return Posts::getPost($path);
         }

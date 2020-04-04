@@ -85,6 +85,7 @@ class Schema
                     `survey_text` VARCHAR(1024) NOT NULL,
                     `survey_create_gdp` DECIMAL(12,5) zerofill,
                     `survey_expire_gdp` DECIMAL(12,5) zerofill,
+                    `publish` INT NOT NULL,
                     `survey_desc` VARCHAR(1024) NOT NULL,
                     PRIMARY KEY(`survey_id`),
                     FOREIGN KEY(survey_owner_id) REFERENCES tbl_users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
